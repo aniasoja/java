@@ -18,8 +18,10 @@ import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.*;
 import javafx.geometry.Pos;
+import java.util.ArrayList;
+
+import java.util.List;
 import java.util.Random;
 
 public class Minesweeper extends Application{
@@ -41,6 +43,15 @@ public class Minesweeper extends Application{
 		Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
 		Image flag = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\flag.png"));
 		
+		List<Integer> x = new ArrayList<Integer>();
+		List<Integer> y = new ArrayList<Integer>();
+		
+	    Random random_x = new Random();
+	    random_x.ints(12, 0, 14).sorted().forEach(x.add(this));
+	    
+	    Random random_y = new Random();
+	    random_y.ints(12, 0, 8).sorted().forEach(y.add(this));
+		
 		GridPane mines = new GridPane();
 		mines.setVgap(1);
 		mines.setHgap(1);
@@ -52,16 +63,17 @@ public class Minesweeper extends Application{
 				k.setPrefWidth(100);
 				k.setPrefHeight(100);
 				k.setOnMouseClicked(e -> {
-					if (e.button == MouseButton.SECONDARY) {
+					if (e.getButton() == MouseButton.SECONDARY) {
 						k.setDisable(true);
 						k.setGraphic(new ImageView(flag));
-						//this is an error
-					}
+						}
 					else {
 						Random random = new Random();
 						int rand = random.nextInt(4);
 
 						k.setDisable(true);
+						System.out.println(k.getLayoutX()/3);
+						System.out.println(k.getLayoutY()/3);
 						
 						if(rand == 0) {
 							k.setGraphic(new ImageView(bomb));
