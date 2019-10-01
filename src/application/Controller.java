@@ -43,9 +43,30 @@ public class Controller {
     	
     	String path = System.getProperty("user.home");
     	System.out.println(path);
+    	this.btnOpen.setOnAction(event -> {
+    		System.out.println("Open click");
+    	});
+    	majComboBox(path);
+    	majListView(path);
+    	btnCancel.setOnAction(event -> {
+    		System.exit(0);
+    	});
+    	btnOpen.setOnAction(event ->{
+    		File element = new File(comboxRep.getValue()+listViewFile.getSelectionModel().getSelectedItem());
+    		if(element.isFile()) {
+    			//element.open(element);
+    			System.exit(0);
+    		}
+    		else if(element.isDirectory()) {
+    			majComboBox(element.getAbsolutePath());
+    		}
+    		else {
+    			System.out.println("Stranger things are happening");
+    		}
+    	});
+    };
 
     	
-	}
     /* 
      * updates the combo view based on the selected path
     */ 
@@ -80,27 +101,11 @@ public class Controller {
     		}
     	}
     	);
-
+/*
     	
-    	btnCancel.setOnAction(event -> {
-    		System.exit(0);
-    	});
-    	btnOpen.setOnAction(event ->{
-    		File element = new File(comboxRep.getValue()+listViewFile.getSelectionModel().getSelectedItem());
-    		if(element.isFile()) {
-    			//can do something with the file (open it?)
-    			System.out.println("1");
-    			System.exit(0);
-    		}
-    		else if(element.isDirectory()) {
-    			majComboBox(element.getAbsolutePath());
-    		}
-    		else {
-    			System.out.println("2");
-    		}
-    	});
-    };
-}
+    	
+    */
+}}
 
 
 
