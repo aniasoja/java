@@ -25,7 +25,7 @@ public class Controller {
     private Button btnOpen;
     
 	@FXML
-	private  ListView listViewFile;		// list to show files inside directory
+	private  ListView<String> listViewFile;		// list to show files inside directory
     
 	@FXML
 	private ComboBox<String> comboxRep; // combo box of parent directories
@@ -42,12 +42,13 @@ public class Controller {
     public void initialize(){
     	
     	String path = System.getProperty("user.home");
-    	System.out.println(path);
     	this.btnOpen.setOnAction(event -> {
     		System.out.println("Open click");
     	});
+    	
     	majComboBox(path);
     	majListView(path);
+    	
     	btnCancel.setOnAction(event -> {
     		System.exit(0);
     	});
@@ -79,6 +80,7 @@ public class Controller {
     	
     	comboxRep.setOnAction(event -> 
     	{
+    		
     		majListView(comboxRep.getSelectionModel().getSelectedItem());
     	});
 
@@ -101,10 +103,6 @@ public class Controller {
     		}
     	}
     	);
-/*
-    	
-    	
-    */
 }}
 
 

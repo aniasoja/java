@@ -34,6 +34,10 @@ public class Minesweeper extends Application{
 		HBox topbox = new HBox();
 		Text left = new Text ("score");
 		Button smile = new Button("New Game");
+		smile.setOnMouseClicked(e->{
+		//	how do I start a new game?
+		});
+		
 		Text right = new Text("score");
 		topbox.getChildren().addAll(left, smile, right);
 		left.setStyle("fx-spacing: 20; -fx-text-alignment: left");
@@ -43,15 +47,20 @@ public class Minesweeper extends Application{
 		Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
 		Image flag = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\flag.png"));
 		
-		List<Integer> x = new ArrayList<Integer>();
-		List<Integer> y = new ArrayList<Integer>();
+		int bombs = 12;
 		
+	    List<Integer> x = new ArrayList<Integer>();
 	    Random random_x = new Random();
-	    random_x.ints(12, 0, 14).sorted().forEach(x.add(this));
+	    random_x.ints(bombs, 0, 15).forEach(i -> {
+	    	x.add(i);
+	    	});
 	    
+	    List<Integer> y = new ArrayList<Integer>();
 	    Random random_y = new Random();
-	    random_y.ints(12, 0, 8).sorted().forEach(y.add(this));
-		
+	    random_y.ints(bombs, 0, 7).forEach(i -> {
+	    	y.add(i);
+	    	});
+	    
 		GridPane mines = new GridPane();
 		mines.setVgap(1);
 		mines.setHgap(1);
@@ -62,6 +71,7 @@ public class Minesweeper extends Application{
 				Button k = new Button("");
 				k.setPrefWidth(100);
 				k.setPrefHeight(100);
+				mines.add(k, i, j);
 				k.setOnMouseClicked(e -> {
 					if (e.getButton() == MouseButton.SECONDARY) {
 						k.setDisable(true);
@@ -70,21 +80,60 @@ public class Minesweeper extends Application{
 					else {
 						Random random = new Random();
 						int rand = random.nextInt(4);
+						
+						double checkx = k.getLayoutX()/30;
+						int check_x = (int) checkx;
+						double checky = k.getLayoutY()/30;
+						int check_y = (int) checky;
 
 						k.setDisable(true);
-						System.out.println(k.getLayoutX()/3);
-						System.out.println(k.getLayoutY()/3);
-						
-						if(rand == 0) {
-							k.setGraphic(new ImageView(bomb));
+						boolean is_bomb = false;
+						for(int o = 0; o<12; o++) {
+							if(check_x==x.get(o)  && check_y ==y.get(o)) {
+								k.setGraphic(new ImageView(bomb));
+								is_bomb = true;
+								//end game
 							}
-						else {
-							k.setText("1");
+						}
+						if(is_bomb == false) {
+							int counter = 0;
+							for(int o = 0; o<12; o++) {
+								if(check_x + 1 == x.get(o) && check_y + 1 == y.get(o)) {
+									counter++;
+								}
+								if(check_x + 1 == x.get(o) && check_y == y.get(o)) {
+									counter++;
+								}
+								if(check_x + 1 == x.get(o) && check_y - 1 == y.get(o)) {
+									counter++;
+								}
+								if(check_x - 1 == x.get(o) && check_y + 1 == y.get(o)) {
+									counter++;
+								}
+								if(check_x - 1 == x.get(o) && check_y == y.get(o)) {
+									counter++;
+								}
+								if(check_x - 1 == x.get(o) && check_y - 1 == y.get(o)) {
+									counter++;
+								}
+								if(check_x == x.get(o) && check_y + 1 == y.get(o)) {
+									counter++;
+								}
+								if(check_x == x.get(o) && check_y - 1 == y.get(o)) {
+									counter++;
+								}
+								
+							}
+							if(counter == 0) {
+								k.setText("");
+							}
+							else {
+								String text = Integer.toString(counter);
+								k.setText(text);
+							}
 						}
 					}
-					
 				});
-				mines.add(k, i, j);
 			}
 		}
 	
