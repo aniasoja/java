@@ -17,8 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 
@@ -26,7 +24,7 @@ public class Play  {
 	
 	private final BorderPane rootPane ; // or any other kind of pane, or  Group...
 
-    public Play() throws Exception {
+    public Play(int width, int height, int bombs) throws Exception {
 
         rootPane = new BorderPane();
         
@@ -46,31 +44,32 @@ public class Play  {
     	smile.setStyle("fx-spacing: 20; -fx-alignment: center");
     	right.setStyle("fx-spacing: 20; -fx-text-alignment: right");
     	
-    	Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
     	Image flag = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\flag.png"));
     	
-    	int bombs = 12;
     	
     	//here I generate 12 (amount of bombs) X-axis numbers and 12 Y-axis numbers
     	// so I have 12 coordinates (X, Y) of bombs
     	
         List<Integer> x = new ArrayList<Integer>();
         List<Integer> y = new ArrayList<Integer>();
-        GenerateBombs(bombs, 15, x);
-        GenerateBombs(bombs, 8, y);
+        GenerateBombs(bombs, width, x);
+        GenerateBombs(bombs, height, y);
         
         
     	GridPane mines = new GridPane();
     	mines.setVgap(1);
     	mines.setHgap(1);
+    	
+    	ArrayList<Button> all = new ArrayList<Button>();
 
-    	for (int i=0;i<15; ++i) {
-    		for (int j=0; j<8;++j){
+    	for (int i=0;i<width; ++i) {
+    		for (int j=0; j<height;++j){
     			
     			Button k = new Button("");
-    			k.setPrefWidth(33);
-    			k.setPrefHeight(33);
+    			k.setPrefWidth(35);
+    			k.setPrefHeight(35);
     			mines.add(k, i, j);
+    			all.add(k);
     			
     			k.setOnMouseClicked(e -> {
     				if (e.getButton() == MouseButton.SECONDARY) { //if right click
@@ -86,13 +85,17 @@ public class Play  {
     				else {
     					//here I get the coordinates - width of one button is around 30 
     					//and i change it from double, eg. 2.3 to int, showing its order
-    					int check_x = (int) k.getLayoutX()/30;
-    					int check_y = (int) k.getLayoutY()/30;
+    					int check_x = (int) k.getLayoutX()/33;
+    					int check_y = (int) k.getLayoutY()/33;
     					
     					boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, x, y);
     					if(is_bomb == true) {
+    						try {
+    							ShowAll(all, bombs, x, y);
+    						} catch (Exception e1) {
+    							e1.printStackTrace();
+    						}
     						//end of game
-    						k.setGraphic(new ImageView(bomb));
     					}
     					
     							
@@ -104,7 +107,8 @@ public class Play  {
     							k.setText(text);
     						}
     						else {
-    							//odkrywanie ca³ych po³aci
+    							k.setDisable(true);
+    							ShowFields(check_x, check_y, all, bombs, x, y, width, height);
     						}
     					}
     				}
@@ -114,7 +118,7 @@ public class Play  {
 
     	
     	VBox.getChildren().addAll(topbox, mines);
-		Scene scene = new Scene(VBox, 500, 300);
+		Scene scene = new Scene(VBox, width*35, height*35+40);
 		Stage stage = new Stage();
 		stage.setTitle("Minesweeper");
 		stage.setScene(scene); 
@@ -172,7 +176,104 @@ public class Play  {
 			
 		}
 		return counter;
+	};
+	public void ShowAll(List<Button> all, int bombs, List<Integer> x, List<Integer>y) throws Exception {
+		Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
+		for(Button k:all) {
+			int check_x = (int)k.getLayoutX()/33;
+			int check_y = (int)k.getLayoutY()/33;
+			boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, x, y);
+			if(is_bomb == true) {
+				k.setDisable(true);
+				k.setGraphic(new ImageView(bomb));
+			}
+			else {
+				k.setDisable(true);
+				int counter = HowManyBombsAround((int)k.getLayoutX()/33, (int)k.getLayoutY()/33, bombs, x, y);
+				if(counter > 0) {
+					String text = Integer.toString(counter);
+					k.setText(text);
+				}
+			}
+		}
 	}
 	
-
+	public void ShowFields(int check_x, int check_y, List<Button> all, int bombs, List<Integer> x, List<Integer> y, int width, int height) {
+		List<Integer> openX = new ArrayList<Integer>();
+		List<Integer> openY = new ArrayList<Integer>();
+		
+		System.out.println("A " + check_x + " " + check_y);
+		
+		AddNeighbours(check_x, check_y, openX, openY, all, bombs, x, y, width, height);
+	
+		while(openX.isEmpty()==false) {
+			
+			for (Button k : all){
+				if((int) k.getLayoutX()/33==openX.get(0) && (int) k.getLayoutY()/33 == openY.get(0)) {
+					k.setDisable(true);
+					int counter = HowManyBombsAround(openX.get(0), openY.get(0), bombs, x, y);
+					if(counter>0) {
+						String text = Integer.toString(counter);
+						k.setText(text);
+					}
+					else {
+						System.out.println(" ");
+						System.out.println("D " + openX.get(0) + " " + openY.get(0));
+						AddNeighbours(openX.get(0), openY.get(0), openX, openY, all, bombs, x, y, width, height);
+					}
+				}
+			}	
+			openX.remove(0);
+			openY.remove(0);
+		}
+	}
+	
+	public void AddNeighbours(int check_x, int check_y, List<Integer> openX, List<Integer> openY, List<Button> all, int bombs, List<Integer> x, List<Integer> y, int width, int height) {
+		if(check_y>0 && check_x>0) {
+			AddToList(all, check_y-1, check_x-1, openY, openX, bombs, x, y);
+		}
+		if(check_y>0 && check_x<width) {
+			AddToList(all, check_y-1, check_x+1, openY, openX, bombs, x, y);
+		}
+		if(check_y<height && check_x>0) {
+			AddToList(all, check_y+1, check_x-1, openY, openX, bombs, x, y);
+		}
+		if(check_y<height && check_x<width) {
+			AddToList(all, check_y+1, check_x+1, openY, openX, bombs, x, y);
+		}
+		if(check_y>0) {
+			AddToList(all, check_y-1, check_x, openY, openX, bombs, x, y);
+		}
+		if(check_y<height) {
+			AddToList(all, check_y+1, check_x, openY, openX, bombs, x, y);
+		}
+		if(check_x>0) {
+			AddToList(all, check_y, check_x-1, openY, openX, bombs, x, y);
+		}
+		if(check_x<width) {
+			AddToList(all, check_y, check_x+1, openY, openX, bombs, x, y);
+		}
+	};
+	
+	public void AddToList(List<Button> all, int a, int b, List<Integer> openY, List<Integer> openX, int bombs, List<Integer> x, List<Integer> y){
+		for (Button k : all){
+			boolean add = true;
+			if((int) k.getLayoutY()/33==a && (int) k.getLayoutX()/33 == b) {
+				if(k.isDisabled()==false && k.getOpacity()==1.0) {
+					for(int n=0; n<openX.size(); n++) {
+						if(openX.get(n) == b && openY.get(n) == a) {
+							add = false;
+						}
+					}
+					if(add == true) {
+						openY.add(a);
+						openX.add(b);
+						
+						System.out.print("C " + openX.get(openX.size()-1) + " " + openY.get(openY.size()-1));
+						
+					}
+				}
+			}
+	}
+}
 }
