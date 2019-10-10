@@ -2,6 +2,7 @@ package application;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Collections; 
 import java.util.List;
 import java.util.Random;
 
@@ -10,21 +11,18 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import javafx.stage.Stage;
 
-
-public class Play  {
-	
+public class Level4 {
 	private final BorderPane rootPane ; // or any other kind of pane, or  Group...
 
-    public Play(int width, int height, int bombs) throws Exception {
+    public Level4() throws Exception {
 
         rootPane = new BorderPane();
         
@@ -45,12 +43,71 @@ public class Play  {
     	right.setStyle("fx-spacing: 20; -fx-text-alignment: right");
     	
     	Image flag = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\flag.png"));
-   
+    	Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
     	
-        List<Integer> x = new ArrayList<Integer>();
-        List<Integer> y = new ArrayList<Integer>();
-        GenerateBombs(bombs, width, x);
-        GenerateBombs(bombs, height, y);
+        List<Integer> xList = new ArrayList<Integer>();
+        List<Integer> yList = new ArrayList<Integer>();
+        int width = 30;
+        int height = 20;
+        int bombs = 450;
+        GenerateBombs(bombs, width, xList);
+        GenerateBombs(bombs, height, yList);
+        System.out.println(xList);
+        System.out.println(yList);
+        List<Integer>copyX = xList;
+        List<Integer>copyY = yList;
+ 
+        List<Integer> allNumX = new ArrayList<Integer>();
+        List<Integer> allNumY = new ArrayList<Integer>();
+        
+        for(int i = 0; i<width; i++) {
+        	List<Integer> sort = new ArrayList<Integer>();
+        	for(int j:copyX) {
+        		//System.out.println(j);
+        		if(j==i) {
+        			System.out.println(copyX.indexOf(j) + "a");
+        			sort.add(copyY.get(copyX.indexOf(j)));
+        			//copyX.remove(j);
+        			copyY.remove(i);
+        		}
+        	}
+        	Collections.sort(sort);
+        	System.out.println(sort);
+        	int counter = 1;
+        	for(int k =0; k<sort.size()-1; k++) {
+        		if(sort.get(k+1)-sort.get(k)==1) {
+        			counter++;
+        		} else {
+        			allNumX.add(counter);
+        			counter = 1;
+        		}
+        	}
+        	allNumX.add(0);
+        }
+        for(int i = 0; i<height; i++) {
+        	List<Integer> sort = new ArrayList<Integer>();
+        	for(int j:yList) {
+        		if(j==i) {
+        			sort.add(xList.get(yList.indexOf(j)));
+        		}
+        	}
+        	Collections.sort(sort);
+        	int counter = 1;
+        	for(int k =0; k<sort.size()-1; k++) {
+        		if(sort.get(k+1)-sort.get(k)==1) {
+        			counter++;
+        		} else {
+        			allNumY.add(counter);
+        			counter = 1;
+        		}
+        	}
+        	allNumY.add(0);
+        }
+        System.out.println(xList);
+        System.out.println(yList);
+        System.out.println(allNumX);
+        System.out.println(allNumY);
+        
         
         
     	GridPane mines = new GridPane();
@@ -59,8 +116,8 @@ public class Play  {
     	
     	ArrayList<Button> all = new ArrayList<Button>();
 
-    	for (int i=0;i<width; ++i) {
-    		for (int j=0; j<height;++j){
+    	for (int i=0;i<30; ++i) {
+    		for (int j=1; j<21;++j){
     			
     			Button k = new Button("");
     			k.setPrefWidth(35);
@@ -69,46 +126,27 @@ public class Play  {
     			all.add(k);
     			
     			k.setOnMouseClicked(e -> {
-    				if (e.getButton() == MouseButton.SECONDARY) { //if right click
-    					if(k.getOpacity() <1.0) { //so if it is flagged
-    						k.setOpacity(1.0);
-    						k.setGraphic(null); //I unflag it
-    					}
-    					else { // I flag it
-    						k.setOpacity(0.4);
-    						k.setGraphic(new ImageView(flag));
-    					}
+    				int check_x = (int) k.getLayoutX()/33;
+					int check_y = (int) k.getLayoutY()/33;
+					
+					try {
+						ShowAll(all, bombs, xList, yList);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					
+    				
+    				boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, xList, yList);
+    				
+    				if(is_bomb == true) {
+    					k.setDisable(true);
+    					k.setGraphic(new ImageView(bomb));
     				}
     				else {
-    					//here I get the coordinates - width of one button is around 30 
-    					//and i change it from double, eg. 2.3 to int, showing its order
-    					int check_x = (int) k.getLayoutX()/33;
-    					int check_y = (int) k.getLayoutY()/33;
-    					
-    					boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, x, y);
-    					if(is_bomb == true) {
-    						try {
-    							ShowAll(all, bombs, x, y);
-    						} catch (Exception e1) {
-    							e1.printStackTrace();
-    						}
-    						//end of game
-    					}
-    					
-    							
-    					if(is_bomb == false) {
-    						k.setDisable(true);
-    						int counter = HowManyBombsAround(check_x, check_y, bombs, x, y);
-    						if(counter > 0) {
-    							String text = Integer.toString(counter);
-    							k.setText(text);
-    						}
-    						else {
-    							k.setDisable(true);
-    							ShowFields(check_x, check_y, all, bombs, x, y, width, height);
-    						}
-    					}
+    					k.setDisable(true);
     				}
+    		
+    				
     			});
     		}
     	}
@@ -134,6 +172,7 @@ public class Play  {
 	};
 	
 	public boolean CheckIfHasBomb(int bombs, int check_x, int check_y, List<Integer> x, List<Integer> y) {
+		System.out.println("yes");
 		boolean is_bomb = false;
 		for(int o = 0; o<bombs; o++) {
 			if(check_x==x.get(o)  && check_y ==y.get(o)) {
@@ -282,4 +321,5 @@ public class Play  {
 			}
 	}
 }
+
 }

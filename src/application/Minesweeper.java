@@ -20,7 +20,7 @@ public class Minesweeper extends Application{
 		button1.setOnAction(e -> {
 			Play game = null;
 			try {
-				game = new Play(15, 8, 12);
+				game = new Play(10, 6, 10);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -30,7 +30,7 @@ public class Minesweeper extends Application{
 		button2.setOnAction(e -> {
 			Play game = null;
 			try {
-				game = new Play(20, 12, 24);
+				game = new Play(13, 10, 20);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -40,13 +40,22 @@ public class Minesweeper extends Application{
 		button3.setOnAction(e -> {
 			Play game = null;
 			try {
-				game = new Play(25, 16, 48);
+				game = new Play(17, 12, 40);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		    primaryStage.getScene().setRoot(game.getRootPane());
 		});
 		Button button4 = new Button("Not working yet");
+		button4.setOnAction(e -> {
+			Level4 game = null;
+			try {
+				game = new Level4();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		    primaryStage.getScene().setRoot(game.getRootPane());
+		});
 		
 		VBox.getChildren().addAll(button1, button2, button3, button4);
 		Scene scene = new Scene(VBox, 300, 300);
