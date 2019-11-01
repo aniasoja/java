@@ -84,6 +84,7 @@ public class Play  {
     	});
     	
     	Game(width, height,timer, right, flag, bombs, mines, all);
+    	System.out.println(all);
     	
     	VBox.getChildren().addAll(topbox, mines);
 		Scene scene = new Scene(VBox, width*35, height*35+40);
@@ -112,6 +113,7 @@ public class Play  {
         }
         System.out.println(x);
         System.out.println(y);
+        ArrayList<Button> flagged = new ArrayList<Button>();
         
     	
     	for (int i=0;i<width; ++i) {
@@ -132,15 +134,17 @@ public class Play  {
     					if(k.getOpacity() <1.0) { //so if it is flagged
     						k.setOpacity(1.0);
     						k.setGraphic(null); //I unflag it
-    						right.setText((Integer.parseInt(right.getText()))-1+"");	
+    						right.setText((Integer.parseInt(right.getText()))-1+"");
+    						flagged.remove(k);
     					}
     					else { // I flag it
     						k.setOpacity(0.4);
     						k.setGraphic(new ImageView(flag));
     						int test = Integer.parseInt(right.getText());
     						right.setText((test+1)+"");
+    						flagged.add(k);
     						if(Integer.parseInt(right.getText())==bombs) {
-    							if(CheckAll(all, bombs, x, y)==bombs) {
+    							if(CheckAll(all, bombs, x, y, flag, flagged)==bombs) {
     								timer.stop();
     								//win
     							}
@@ -166,6 +170,12 @@ public class Play  {
     						try {
     							timer.stop();
     							ShowAll(all, bombs, x, y);
+    							Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
+    							System.out.println(k.getGraphic());
+    							System.out.println(new ImageView(bomb));
+    							if(k.getGraphic()==new ImageView(bomb)) {
+    								System.out.println("wow");
+    							};
     						} catch (Exception e1) {
     							e1.printStackTrace();
     						}
@@ -320,14 +330,14 @@ public class Play  {
 		}
 	}
 	
-	public int CheckAll(List<Button> all, int bombs, List<Integer> x, List<Integer>y) {
+	public int CheckAll(List<Button> all, int bombs, List<Integer> x, List<Integer>y, Image flag, ArrayList<Button> flagged) {
 		int counter = 0;
 		for(Button k:all) {
 			int check_x = (int)k.getLayoutX()/33;
 			int check_y = (int)k.getLayoutY()/33;
 			boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, x, y);
 			if(is_bomb == true) {
-				if(k.getOpacity() <1.0) {
+				if(flagged.contains(k)) {
 					System.out.println(check_x +" " + check_y);
 					counter++;
 				}
