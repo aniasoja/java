@@ -197,7 +197,7 @@ public class Play  {
     			});
     		}
     	}
-    	
+    	flagged.clear();
     }
 
     
