@@ -105,8 +105,10 @@ public class Play  {
         GenerateBombs(bombs, width, x);
         GenerateBombs(bombs, height, y);
         SortX(x, y, height);
-        while(SortY(x, y, height) != 0) {
+        int a = SortY(x, y, height);
+        while(a != 0) {
         	RemoveRepeats(x, y, height);
+        	a = SortY(x, y, height);
         }
         System.out.println(x);
         System.out.println(y);
@@ -254,7 +256,6 @@ public class Play  {
 				}
 			}
 		}
-		System.out.println("yes");
 	}
 	
 	public boolean CheckIfHasBomb(int bombs, int check_x, int check_y, List<Integer> x, List<Integer> y) {
