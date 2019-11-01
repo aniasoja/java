@@ -135,7 +135,6 @@ public class Play  {
     					else { // I flag it
     						k.setOpacity(0.4);
     						k.setGraphic(new ImageView(flag));
-    						right.setText(right.getText()+1);
     						right.setText((Integer.parseInt(right.getText()))+1+"");
     						if(Integer.parseInt(right.getText())==bombs) {
     							if(CheckAll(all, bombs, x, y)==bombs) {
