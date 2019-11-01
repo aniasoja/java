@@ -1,12 +1,15 @@
 package application;
 
+import java.awt.Container;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Collections; 
+import java.util.Collections;
+import java.util.Comparator; 
 import java.util.List;
 import java.util.Random;
 
 import javafx.scene.Scene;
+import javafx.scene.layout.*;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,11 +19,17 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 
 public class Level4 {
 	private final BorderPane rootPane ; // or any other kind of pane, or  Group...
+	//dodaæ mechanizm zliczj¹cy punkty
 
     public Level4() throws Exception {
 
@@ -42,82 +51,69 @@ public class Level4 {
     	smile.setStyle("fx-spacing: 20; -fx-alignment: center");
     	right.setStyle("fx-spacing: 20; -fx-text-alignment: right");
     	
-    	Image flag = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\flag.png"));
-    	Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
-    	
         List<Integer> xList = new ArrayList<Integer>();
         List<Integer> yList = new ArrayList<Integer>();
+        
         int width = 30;
         int height = 20;
-        int bombs = 450;
-        GenerateBombs(bombs, width, xList);
-        GenerateBombs(bombs, height, yList);
-        System.out.println(xList);
-        System.out.println(yList);
-        List<Integer>copyX = xList;
-        List<Integer>copyY = yList;
+        int bombs = 500;
+        
+        GenerateBombs(bombs, 1, width+1, xList);
+        GenerateBombs(bombs, 0, height, yList);
  
-        List<Integer> allNumX = new ArrayList<Integer>();
-        List<Integer> allNumY = new ArrayList<Integer>();
+        ArrayList<List<Integer>> allNumX = new ArrayList<List<Integer>>();
+        ArrayList<List<Integer>> allNumY = new ArrayList<List<Integer>>();
         
-        for(int i = 0; i<width; i++) {
-        	List<Integer> sort = new ArrayList<Integer>();
-        	for(int j:copyX) {
-        		//System.out.println(j);
-        		if(j==i) {
-        			System.out.println(copyX.indexOf(j) + "a");
-        			sort.add(copyY.get(copyX.indexOf(j)));
-        			//copyX.remove(j);
-        			copyY.remove(i);
-        		}
-        	}
-        	Collections.sort(sort);
-        	System.out.println(sort);
-        	int counter = 1;
-        	for(int k =0; k<sort.size()-1; k++) {
-        		if(sort.get(k+1)-sort.get(k)==1) {
-        			counter++;
-        		} else {
-        			allNumX.add(counter);
-        			counter = 1;
-        		}
-        	}
-        	allNumX.add(0);
-        }
-        for(int i = 0; i<height; i++) {
-        	List<Integer> sort = new ArrayList<Integer>();
-        	for(int j:yList) {
-        		if(j==i) {
-        			sort.add(xList.get(yList.indexOf(j)));
-        		}
-        	}
-        	Collections.sort(sort);
-        	int counter = 1;
-        	for(int k =0; k<sort.size()-1; k++) {
-        		if(sort.get(k+1)-sort.get(k)==1) {
-        			counter++;
-        		} else {
-        			allNumY.add(counter);
-        			counter = 1;
-        		}
-        	}
-        	allNumY.add(0);
-        }
-        System.out.println(xList);
-        System.out.println(yList);
-        System.out.println(allNumX);
-        System.out.println(allNumY);
+        count(width+1, xList, yList, allNumX, 1);
+        count(height, yList, xList, allNumY, 0);
         
+        System.out.println("xList = " + xList);
+        System.out.println("yList = " + yList);
+        System.out.println("allNumX = " + allNumX);
+        System.out.println("allNumY = " + allNumY);
         
+        HBox countX = new HBox();
+        VBox countY = new VBox();
         
-    	GridPane mines = new GridPane();
+        GridPane mines = new GridPane();
     	mines.setVgap(1);
     	mines.setHgap(1);
+        
+        String xy = "x";
+    		
+    		//allNum = lista wszytskich list, podzielonych na pola
+    		//a - lista dla danego pola, np. x1, x2
+    		//container - lista poziomych, pionowych pól
+    		
+        int biggest = getBiggest(allNumX);
+        for(int j = 0; j<allNumX.size(); j++) { //
+        	VBox field = new VBox();
+        	numbers(xy, allNumX.get(j), biggest, field);
+            countX.getChildren().add(field);
+        }
+
+        
+        Text spacing = new Text();
+        spacing.setWrappingWidth(150);
+        countX.getChildren().add(0, spacing);
+        
+        HBox countandmines = new HBox();
     	
     	ArrayList<Button> all = new ArrayList<Button>();
+    	
+    	List<Integer> clickedXList = new ArrayList<Integer>();
+        List<Integer> clickedYList = new ArrayList<Integer>();
+       
+        //List<Integer> a = new ArrayList<Integer>();
+        //a = xList;
+        //a.sort(Comparator.naturalOrder());
+        //List<Integer> b = new ArrayList<Integer>();
+        //b = yList;
+        //b.sort(Comparator.naturalOrder());
+    	
 
-    	for (int i=0;i<30; ++i) {
-    		for (int j=1; j<21;++j){
+    	for (int i=1;i<=30; ++i) {
+    		for (int j=1; j<=20;++j){
     			
     			Button k = new Button("");
     			k.setPrefWidth(35);
@@ -126,17 +122,35 @@ public class Level4 {
     			all.add(k);
     			
     			k.setOnMouseClicked(e -> {
-    				int check_x = (int) k.getLayoutX()/33;
-					int check_y = (int) k.getLayoutY()/33;
+    				
+    				if (e.getButton() == MouseButton.SECONDARY || e.getClickCount()==2) {
+    					k.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+    					clickedXList.add((int)k.getLayoutX()/35-3);
+    					clickedYList.add((int)k.getLayoutY()/35);
+    					clickedXList.sort(Comparator.naturalOrder());
+    					clickedYList.sort(Comparator.naturalOrder());
+    					xList.sort(Comparator.naturalOrder());
+    					System.out.println(xList);
+    					System.out.println(clickedXList);
+    					if(clickedXList.equals(xList) && clickedYList.equals(yList)) {
+    						System.out.print("Winner!!");
+    					}
+    					
+    				}
+    				else {
+    					k.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+   
+    				}
+    				
+    				//CheckIfAllClicked(all);
+    				/*
+    				int check_x = (int) k.getLayoutX()/35;
+					int check_y = (int) k.getLayoutY()/35;
 					
-					try {
-						ShowAll(all, bombs, xList, yList);
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+					System.out.println(check_x + " " + check_y);
 					
     				
-    				boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, xList, yList);
+    				boolean is_bomb = CheckIfHasBomb(check_x, check_y, xList, yList);
     				
     				if(is_bomb == true) {
     					k.setDisable(true);
@@ -145,15 +159,31 @@ public class Level4 {
     				else {
     					k.setDisable(true);
     				}
-    		
+    		*/
     				
     			});
     		}
     	}
+    
+    	
+    	xy = "y";
+    	biggest = getBiggest(allNumY);
+        for(int j = 0; j<allNumY.size(); j++) { //
+        	HBox field = new HBox();
+        	numbers(xy, allNumY.get(j), biggest, field);
+        	//field.alignmentProperty(Pos.CENTER_RIGHT);
+        	field.setMinWidth(150);
+        	field.setAlignment(Pos.CENTER_RIGHT);
+        	mines.add(field, 0, j+1);
+        }
+ 
+    	
+    	countY.prefHeight(mines.	getPrefHeight());
+    	countandmines.getChildren().addAll(countY, mines);
 
     	
-    	VBox.getChildren().addAll(topbox, mines);
-		Scene scene = new Scene(VBox, width*35, height*35+40);
+    	VBox.getChildren().addAll(topbox, countX, countandmines);
+		Scene scene = new Scene(VBox, width*36+160, height*36+160);
 		Stage stage = new Stage();
 		stage.setTitle("Minesweeper");
 		stage.setScene(scene); 
@@ -164,162 +194,116 @@ public class Level4 {
     public Pane getRootPane() {
         return rootPane ;
     }
-    public void GenerateBombs(int bombs, int max, List<Integer> list) {
+    
+    public void GenerateBombs(int bombs, int min, int max, List<Integer> list) {
 		Random random_x = new Random();
-	    random_x.ints(bombs, 0, max).forEach(i -> {
+	    random_x.ints(bombs, min, max).forEach(i -> {
 	    	list.add(i);
 	    	});
 	};
 	
-	public boolean CheckIfHasBomb(int bombs, int check_x, int check_y, List<Integer> x, List<Integer> y) {
-		System.out.println("yes");
+	public boolean CheckIfHasBomb(int check_x, int check_y, List<Integer> x, List<Integer> y) {
 		boolean is_bomb = false;
-		for(int o = 0; o<bombs; o++) {
-			if(check_x==x.get(o)  && check_y ==y.get(o)) {
+		for(int o = 0; o<x.size(); o++) {
+			if(check_x+1==x.get(o)  && check_y ==y.get(o)) {
 				is_bomb = true;
 			}
 		}
 		return is_bomb;
 	};
-	
-	public int HowManyBombsAround(int check_x, int check_y, int bombs, List<Integer> x, List<Integer> y) {
-		int counter = 0;
-		for(int o = 0; o<bombs; o++) {
-			if(check_x + 1 == x.get(o) && check_y + 1 == y.get(o)) {
-				counter++;
-			}
-			if(check_x + 1 == x.get(o) && check_y == y.get(o)) {
-				counter++;
-			}
-			if(check_x + 1 == x.get(o) && check_y - 1 == y.get(o)) {
-				counter++;
-			}
-			if(check_x - 1 == x.get(o) && check_y + 1 == y.get(o)) {
-				counter++;
-			}
-			if(check_x - 1 == x.get(o) && check_y == y.get(o)) {
-				counter++;
-			}
-			if(check_x - 1 == x.get(o) && check_y - 1 == y.get(o)) {
-				counter++;
-			}
-			if(check_x == x.get(o) && check_y + 1 == y.get(o)) {
-				counter++;
-			}
-			if(check_x == x.get(o) && check_y - 1 == y.get(o)) {
-				counter++;
-			}
-			
-		}
-		return counter;
-	};
+
 	public void ShowAll(List<Button> all, int bombs, List<Integer> x, List<Integer>y) throws Exception {
 		Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
 		for(Button k:all) {
-			int check_x = (int)k.getLayoutX()/33;
-			int check_y = (int)k.getLayoutY()/33;
-			boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, x, y);
+			int check_x = (int)((k.getLayoutX()-160)/36);
+			int check_y = (int)k.getLayoutY()/35;
+			boolean is_bomb = CheckIfHasBomb(check_x, check_y, x, y);
 			if(is_bomb == true) {
 				k.setDisable(true);
 				k.setGraphic(new ImageView(bomb));
 			}
 			else {
 				k.setDisable(true);
-				int counter = HowManyBombsAround((int)k.getLayoutX()/33, (int)k.getLayoutY()/33, bombs, x, y);
-				if(counter > 0) {
-					String text = Integer.toString(counter);
-					k.setText(text);
-				}
 			}
 		}
 	}
 	
-	public void ShowFields(int check_x, int check_y, List<Button> all, int bombs, List<Integer> x, List<Integer> y, int width, int height) {
-		List<Integer> openX = new ArrayList<Integer>();
-		List<Integer> openY = new ArrayList<Integer>();
-		
-		System.out.println("A " + check_x + " " + check_y);
-		
-		AddNeighbours(check_x, check_y, openX, openY, all, bombs, x, y, width, height);
-	
-		while(openX.isEmpty()==false) {
-			
-			for (Button k : all){
-				if((int) k.getLayoutX()/33==openX.get(0) && (int) k.getLayoutY()/33 == openY.get(0)) {
-					System.out.println("new");
-					k.setDisable(true);
-					int counter = HowManyBombsAround(openX.get(0), openY.get(0), bombs, x, y);
-					if(counter>0) {
-						String text = Integer.toString(counter);
-						k.setText(text);
-					}
-					else {
-						System.out.println(" ");
-						System.out.println("D " + openX.get(0) + " " + openY.get(0));
-						AddNeighbours(openX.get(0), openY.get(0), openX, openY, all, bombs, x, y, width, height);
-					}
-				}
-			}	
-			openX.remove(0);
-			openY.remove(0);
-		}
+	public void count(int width, List<Integer> List, List<Integer> otherList, ArrayList<List<Integer>> allNum, int ini) {
+		for(int i = ini; i<width; i++) {
+        	List<Integer> sort = new ArrayList<Integer>();
+        	for(int j = 0; j < List.size(); j++) {
+        		if(List.get(j)==i) {
+        			sort.add(otherList.get(j));
+        		}
+        	}
+        	Collections.sort(sort);
+        	List<Integer> repetitions = new ArrayList<Integer>();
+        	for(int l = 0; l<sort.size()-1; l++) {
+        		if(sort.get(l)==sort.get(l+1)) {
+        			repetitions.add(sort.get(l));
+        			sort.remove(l);
+        			l--;
+        		}
+        	}
+        	for(int n:repetitions) {
+        		int counter = 0;
+        		for(int m = 0; m< List.size(); m++) {
+        			if(List.get(m) == i && otherList.get(m) == n) {
+        				if(counter>0) {
+        					List.remove(m);
+            				otherList.remove(m);
+        				} else {
+        					counter++;
+        				}	
+        			}
+        		}
+        	}
+        	
+        	int counter2 = 1;
+        	List<Integer> all = new ArrayList<Integer>();
+        	for(int k =0; k<sort.size()-1; k++) {
+        		if(sort.get(k+1)-sort.get(k)==1) {
+        			counter2++;
+        		} else {
+       				all.add(counter2);
+       				counter2 = 1;
+       			}
+       		}
+        all.add(counter2);
+       	allNum.add(all);
+       }
 	}
 	
-	public void AddNeighbours(int check_x, int check_y, List<Integer> openX, List<Integer> openY, List<Button> all, int bombs, List<Integer> x, List<Integer> y, int width, int height) {
-		if(check_y>0 && check_x>0) {
-			AddToList(all, check_y-1, check_x-1, openY, openX, bombs, x, y);
-		}
-		if(check_y>0 && check_x<width) {
-			AddToList(all, check_y-1, check_x+1, openY, openX, bombs, x, y);
-		}
-		if(check_y<height && check_x>0) {
-			AddToList(all, check_y+1, check_x-1, openY, openX, bombs, x, y);
-		}
-		if(check_y<height && check_x<width) {
-			AddToList(all, check_y+1, check_x+1, openY, openX, bombs, x, y);
-		}
-		if(check_y>0) {
-			AddToList(all, check_y-1, check_x, openY, openX, bombs, x, y);
-		}
-		if(check_y<height) {
-			AddToList(all, check_y+1, check_x, openY, openX, bombs, x, y);
-		}
-		if(check_x>0) {
-			AddToList(all, check_y, check_x-1, openY, openX, bombs, x, y);
-		}
-		if(check_x<width) {
-			AddToList(all, check_y, check_x+1, openY, openX, bombs, x, y);
-		}
-		for(int a = 7; a<0; a--) {
-			System.out.println(openX.get(openX.size()-a) + " " + openY.get(openY.size()-a));
-		}
-	};
-	
-	public void AddToList(List<Button> all, int a, int b, List<Integer> openY, List<Integer> openX, int bombs, List<Integer> x, List<Integer> y){
-		for (Button k : all){
-			boolean add = true;
-			if((int) k.getLayoutY()/33==a && (int) k.getLayoutX()/33 == b) {
-				System.out.println("check " + b + " " + a);
-				if(k.isDisabled()==false && k.getOpacity()==1.0) {
-					for(int n=0; n<openX.size(); n++) {
-						if(openX.get(n) == b && openY.get(n) == a) {
-							add = false;
-							System.out.println("false " + b + " " + a);
-						}
-					}
-					if(add == true) {
-						openY.add(a);
-						openX.add(b);
-						
-						System.out.print("C " + openX.get(openX.size()-1) + " " + openY.get(openY.size()-1));
-						
-					}
-				}
-				else {
-					System.out.println("seen " + b + " " + a);
-				}
-			}
+	public int getBiggest(ArrayList<List<Integer>> allNum) {
+		int biggest = allNum.get(0).size();
+        for(int i = 1; i<allNum.size()-1; i++) {
+        	if(allNum.get(i).size()>biggest) {
+        		biggest = allNum.get(i).size();
+        	}
+        }
+        return biggest;
 	}
-}
-
+	
+	public void numbers(String xy, List<Integer> a, int biggest, Pane field) {
+    	for(int k = 0; k<a.size(); k++) {
+    		Text text = new Text(a.get(k).toString());
+    		text.setWrappingWidth(15);
+    		if(xy == "x") {
+            	text.setTextAlignment(TextAlignment.CENTER);
+            	text.setWrappingWidth(36);
+            } else {
+            	if(a.get(k)>9) {
+            		text.setWrappingWidth(20);
+            	}
+            }
+    		text.setOnMouseClicked(e -> {
+				text.setOpacity(0.5);
+				});
+			field.getChildren().add(text);
+    	}
+    	while(field.getChildren().size() < biggest && xy == "x") {
+			Text text = new Text("  ");
+			field.getChildren().add(0, text);
+       	}
+	}
 }
