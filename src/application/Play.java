@@ -326,10 +326,12 @@ public class Play  {
 			boolean is_bomb = CheckIfHasBomb(bombs, check_x, check_y, x, y);
 			if(is_bomb == true) {
 				if(k.getOpacity() <1.0) {
+					System.out.println(check_x +" " + check_y);
 					counter++;
 				}
 			}
 		}
+		
 		return counter;
 	}
 	
