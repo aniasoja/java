@@ -130,7 +130,7 @@ public class Play  {
     					if(k.getOpacity() <1.0) { //so if it is flagged
     						k.setOpacity(1.0);
     						k.setGraphic(null); //I unflag it
-    						right.setText(Integer.parseInt(right.getText())-1+"");	
+    						right.setText((Integer.parseInt(right.getText()))-1+"");	
     					}
     					else { // I flag it
     						k.setOpacity(0.4);
