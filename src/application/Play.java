@@ -254,6 +254,7 @@ public class Play  {
 				}
 			}
 		}
+		System.out.println("yes");
 	}
 	
 	public boolean CheckIfHasBomb(int bombs, int check_x, int check_y, List<Integer> x, List<Integer> y) {
