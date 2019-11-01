@@ -80,6 +80,7 @@ public class Play  {
     	};
     	smile.setOnMouseClicked(e->{
     		mines.getChildren().clear();
+    		right.setText("0");
     		Game(width, height, timer, right, flag, bombs, mines, all);
     	});
     	
