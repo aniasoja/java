@@ -58,14 +58,15 @@ public class Play  {
     	    @Override
     	    public void start() {
     	        // current time adjusted by remaining time from last run
-    	        timestamp = System.currentTimeMillis() - fraction;
+    	        timestamp = System.currentTimeMillis();
     	        super.start();
     	    }
     	    @Override
     	    public void stop() {
     	        super.stop();
-    	        // save leftover time not handled with the last update
+    	     // save leftover time not handled with the last update
     	        fraction = System.currentTimeMillis() - timestamp;
+    	        time = 0;
     	    }
     	    @Override
     	    public void handle(long now) {
@@ -79,8 +80,10 @@ public class Play  {
     	    }
     	};
     	smile.setOnMouseClicked(e->{
+    		timer.stop();
     		mines.getChildren().clear();
     		right.setText("0");
+    		gametime.setText("0");
     		Game(width, height, timer, right, flag, bombs, mines, all);
     	});
     	
@@ -106,11 +109,11 @@ public class Play  {
         List<Integer> y = new ArrayList<Integer>();
         GenerateBombs(bombs, width, x);
         GenerateBombs(bombs, height, y);
-        SortX(x, y, height);
-        int a = SortY(x, y, height);
+        SortX(x, y);
+        int a = SortY(x, y);
         while(a != 0) {
         	RemoveRepeats(x, y, height);
-        	a = SortY(x, y, height);
+        	a = SortY(x, y);
         }
         System.out.println(x);
         System.out.println(y);
@@ -209,7 +212,7 @@ public class Play  {
 	    	});
 	};
 	
-	public void SortX(List<Integer> list1, List<Integer> list2, int height) {
+	public void SortX(List<Integer> list1, List<Integer> list2) {
 		boolean change = true;
 		while(change!=false) {
 			change = false;
@@ -227,7 +230,7 @@ public class Play  {
 		}
 	}
 		
-	public int SortY(List<Integer> list1, List<Integer> list2, int height) {
+	public int SortY(List<Integer> list1, List<Integer> list2) {
 		int counter = 0;
 		for(int k = 0; k<list1.size()-1; k++) {
 			if(list1.get(k)==list1.get(k+1)) {
