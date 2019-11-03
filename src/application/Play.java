@@ -30,7 +30,7 @@ public class Play  {
     	
     	//Interface
 
-    	Image flag = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\flag.png"));
+    	Image flag = new Image(new FileInputStream("resources\\flag.png"));
         rootPane = new BorderPane();
         
         VBox VBox = new VBox();
@@ -174,7 +174,7 @@ public class Play  {
     						try {
     							timer.stop();
     							ShowAll(all, bombs, x, y);
-    							Image bomb = new Image(new FileInputStream("C:\\Users\\Home\\Desktop\\bomb.jpg"));
+    							Image bomb = new Image(new FileInputStream("resources\\bomb.jpg"));
     							System.out.println(k.getGraphic());
     							System.out.println(new ImageView(bomb));
     							if(k.getGraphic()==new ImageView(bomb)) {
